@@ -1,0 +1,40 @@
+name: CHATIN PDF to Excel and Word
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  convert-pdf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Get CHATIN repository files
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install CHATIN dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Convert the PDF to Excel and Word
+        run: |
+          python app.py "2.cilt-20250117153746.pdf" --output-dir output
+
+      - name: Publish Excel and Word files as downloadable artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: CHATIN-PDF-Excel-Word
+          path: |
+            output/*.xlsx
+            output/*.docx
+          if-no-files-found: error
+          retention-days: 7
